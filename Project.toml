@@ -1,0 +1,8 @@
+name = "CardGames"
+uuid = "f6443bee-411b-4164-bbd9-68a76e0891d5"
+authors = ["Connor Burns <ctrekker4@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
