@@ -1,6 +1,6 @@
 module GuessYourTricks
 
-export GameState, GameTreeNode
+export GameState, GameTreeNode, do_move!, do_round!, expand_game_tree!
 
 using Random
 using CardGames.Common
@@ -31,6 +31,9 @@ function winner(battle::Vector{Union{Nothing, Card}}, lead::Card)
         card.suit == lead.suit ? card.value : 0
     end)
 end
+function round_over(state::GameState)
+    all(length.(new_state.hands) .== 0)
+end
 # Returns a list of the cards a player could play
 function possible_moves(state::GameState)
     # If nobody has played the player can make any move
@@ -57,7 +60,7 @@ function Base.getindex(n::GameTreeNode, i::Int)
     n.nodes[i]
 end
 
-function do_move(state::GameState, move::Int)
+function do_move!(state::GameState, move::Int)
     new_state = copy(state)
 
     played_card = new_state.hands[current_player(state)][move]
@@ -84,16 +87,23 @@ function do_move(state::GameState, move::Int)
     new_state
 end
 
-function do_round(node::GameTreeNode)
+function do_round!(node::GameTreeNode)
+    if node.nodes |> length > 0
+        @warn "Expanded node already contains subnodes"
+        return node
+    end
     for move in possible_moves(node.state)
-        push!(node.nodes, GameTreeNode(do_move(node.state, move), []))
+        push!(node.nodes, GameTreeNode(do_move!(node.state, move), []))
     end
     node
 end
 
-s = GameState(shuffle(Deck()), 5, 7)
-n = GameTreeNode(s, [])
-# println(do_round(n)[1])
+function expand_game_tree!(node::GameTreeNode)
+    do_round!(node)
+    if length(node.nodes) > 0
+        expand_game_tree!.(node.nodes)
+    end
+end
 
 
 end # module
