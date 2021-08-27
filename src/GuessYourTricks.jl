@@ -1,6 +1,6 @@
 module GuessYourTricks
 
-export GameState, GameTreeNode, do_move, do_round!, expand_game_tree!
+export GameState, GameTreeNode, possible_moves, do_move, do_round!, expand_game_tree!
 
 using Random
 using CardGames.Common
