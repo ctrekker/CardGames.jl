@@ -1,6 +1,6 @@
 module GuessYourTricks
 
-export GameState, GameTreeNode, do_move!, do_round!, expand_game_tree!
+export GameState, GameTreeNode, do_move, do_round!, expand_game_tree!
 
 using Random
 using CardGames.Common
@@ -60,7 +60,7 @@ function Base.getindex(n::GameTreeNode, i::Int)
     n.nodes[i]
 end
 
-function do_move!(state::GameState, move::Int)
+function do_move(state::GameState, move::Int)
     new_state = copy(state)
 
     played_card = new_state.hands[current_player(state)][move]
@@ -93,7 +93,7 @@ function do_round!(node::GameTreeNode)
         return node
     end
     for move in possible_moves(node.state)
-        push!(node.nodes, GameTreeNode(do_move!(node.state, move), []))
+        push!(node.nodes, GameTreeNode(do_move(node.state, move), []))
     end
     node
 end
@@ -103,6 +103,27 @@ function expand_game_tree!(node::GameTreeNode)
     if length(node.nodes) > 0
         expand_game_tree!.(node.nodes)
     end
+end
+
+function run_games(state::GameState)
+    q = [state]
+    p = []
+
+    while length(q) > 0
+        s = q[1]
+        deleteat!(q, 1)
+
+        moves = possible_moves(s)
+        if length(moves) > 0
+            for move in moves
+                push!(q, do_move(s, move))
+            end
+        else
+            push!(p, s)
+        end
+    end
+
+    p
 end
 
 

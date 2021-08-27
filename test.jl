@@ -6,7 +6,8 @@ function exec()
     n = GameTreeNode(s, [])
     # println(do_round!(n)[1])
     @info "Starting expansion"
-    @time expand_game_tree!(n)
+    # @time expand_game_tree!(n)
+    @time GuessYourTricks.run_games(s)
     @info "Completed expansion"
 end
 
