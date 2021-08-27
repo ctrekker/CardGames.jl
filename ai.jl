@@ -7,6 +7,8 @@ using CardGames
 using .GuessYourTricks
 using Random
 using ProgressMeter
+using Dates
+using BSON: @save
 
 function random_game(players::Int, cards::Int)
 	deck = shuffle(Deck())
@@ -61,6 +63,7 @@ function main()
 	loss(x, y) = sum((value_fn(x) .- y) .^ 2)
 	parameters = params(value_fn)
 
+	loss_log = []
 
 	@info "Training network"
 	for epoch in 1:epochs
@@ -81,11 +84,23 @@ function main()
 				Flux.Optimise.update!(opt, parameters, grads)
 			end
 
-			@show loss(x_train, y_train)
+			last_loss = loss(x_train, y_train)
+			push!(loss_log, last_loss)
+			@show last_loss
 		end
 	end
 	
+	if !isdir("models")
+		mkdir("models")
+	end
 
+	id = Dates.millisecond(now())
+	model_name = "models/value_fn_$(id).bson"
+	loss_log_name = "models/loss_log_$(id).bson"
+
+	@info "Completed training. Saving model to $model_name"
+	@save model_name value_fn
+	@save loss_log_name loss_log
 end
 
 main()
